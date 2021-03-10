@@ -1,0 +1,75 @@
+#include "history.h"
+
+void 
+add_undoable(uint8_t cmd, uint8_t arg, void* dptr) 
+{
+    struct cmd_s* ptr = (struct cmd_s*) vi->his->undo_ring->next(vi->his->undo_ring);
+    ptr->cmd = cmd;
+    ptr->arg = arg;
+    ptr->dptr = (uintptr_t) dptr;
+    ptr->buffer_c = vi->fb->buffer_c;
+    ptr->buffer_r = vi->fb->buffer_r;
+    vi->his->undo_ring->push(vi->his->undo_ring, ptr);
+}
+
+uint8_t
+undo(struct his_s* his, struct fb_s* fb) 
+{
+    struct cmd_s* cmd = (struct cmd_s*) his->undo_ring->pop(his->undo_ring);
+    if (cmd == NULL) return 1;
+
+    uint32_t r = fb->buffer_r;
+    uint32_t c = fb->buffer_c;
+    struct vi_line* l = fb->currentl;
+     
+    switch (cmd->cmd) {
+        case VICMD_INSERT_C:
+            fb->buffer_r = cmd->buffer_r;
+            fb->buffer_c = cmd->buffer_c + 1;
+            fb->currentl = fb->seek_line(fb, fb->buffer_r);
+            if (fb->currentl == NULL) break;
+            fb->move_gap_to_cursor(fb); 
+            fb->backspace_char(fb, fb->currentl);
+            return 0; 
+        case VICMD_BACKSPACE_C:
+            fb->buffer_r = cmd->buffer_r;
+            fb->buffer_c = cmd->buffer_c;
+            fb->currentl = fb->seek_line(fb, fb->buffer_r);
+            if (fb->currentl == NULL) break;
+            fb->move_gap_to_cursor(fb); 
+            fb->insert_char(fb, fb->currentl, cmd->arg);
+            return 0; 
+        case VICMD_ADDL:
+            fb->buffer_r = cmd->buffer_r;
+            fb->buffer_c = cmd->buffer_c;
+            fb->currentl = fb->seek_line(fb, fb->buffer_r);
+            fb->cutl(fb); 
+        case VICMD_DD:
+            fb->buffer_r = cmd->buffer_r;
+            fb->buffer_c = cmd->buffer_c;
+            fb->currentl = fb->seek_line(fb, fb->buffer_r);
+            if (fb->currentl == NULL) break;
+            fb->insert_line_after(fb, fb->currentl, (struct vi_line*) cmd->dptr); 
+            return 0;
+    }
+
+    fb->buffer_r = r;
+    fb->buffer_c = c;
+    fb->currentl = l; 
+
+    return 0;
+}
+
+void 
+init_history_struct(struct his_s* his)
+{
+    his->undo_ring = init_ring(VI_HISTORY_SIZE, sizeof(struct cmd_s));
+    his->add_undoable = &add_undoable;
+    his->undo = &undo;
+}
+
+void 
+destroy_history_struct(struct his_s* his)
+{
+    (void) his;
+}

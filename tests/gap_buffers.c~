@@ -1,0 +1,111 @@
+#include <string.h>
+#include <stdio.h>
+
+extern void move_gap_to_cursor(struct fb_s* fb); 
+extern void insert_char(struct fb_s* fb, struct vi_line* line, char c);
+
+void 
+test_move_gap() 
+{
+    printf("\n\rStarting test_move_gap()...\n\r");
+
+    struct vi_line* line1 = vi->fb->currentl;
+    char* input_data[] = {
+        "abc___defg", 
+        //       ^
+        "abcde___fg"
+        // ^        
+    };
+    uint32_t cursors[] = {5, 2};
+    uint32_t sogs[]    = {3, 5};
+    uint32_t eogs[]    = {5, 7};
+    char* outputs[] = {
+        "abcde___fg",
+        //    ^
+        "ab___cdefg"
+    };
+
+    for (int c = 0; c < 2; c++) {
+        virealloc(line1->data, 11); 
+        line1->size = 11;
+        line1->sog = sogs[c];
+        line1->eog = eogs[c];
+        strcpy(line1->data, input_data[c]);
+        vi->fb->buffer_c = cursors[c]; 
+        
+        move_gap_to_cursor(vi->fb); 
+
+        for (uint32_t i = 0; i < strlen(line1->data); i++) 
+            if (i >= line1->sog && i <= line1->eog) line1->data[i] = '_';
+
+        if (strcmp(line1->data, outputs[c]) == 0) printf("Test: %d: Success\n\r", c);
+        else printf("Test %d: %s != %s! Failed.\n\r", c, line1->data, outputs[c]);
+    }
+}
+
+void 
+test_insert()
+{
+    printf("\n\rStarting test_insert()...\n\r");
+
+    struct vi_line* line1 = vi->fb->currentl;
+    char* input_data[] = {
+        "abc____defg", 
+        "abc____defg",
+        "abc____defg",
+        "____"
+    };
+    char* to_insert[] = {
+        "A", 
+        "AB",
+        "ABC",
+        "ABC",
+    };
+    uint32_t cursors[] = {3, 3, 3, 0};
+    uint32_t sogs[]    = {3, 3, 3, 0};
+    uint32_t eogs[]    = {6, 6, 6, 3};
+    
+    char* outputs[] = {
+        "abcA___defg",
+        "abcAB__defg",
+        "abcABC____defg",
+        "ABC____"
+    };
+
+    for (int c = 0; c < 4; c++) {
+        strcpy(line1->data, input_data[c]);
+        virealloc(line1->data, strlen(line1->data) + 1); 
+        line1->size = strlen(line1->data) + 1;
+        line1->sog = sogs[c];
+        line1->eog = eogs[c];
+        line1->data_n = strlen(input_data[c]) - (eogs[c] - sogs[c] + 1);
+        vi->fb->buffer_c = cursors[c];
+        printf("\nsog: %d, eog: %d, data: %s, data_n: %d, size: %d, buffer_c: %d\n\r", 
+                    line1->sog, line1->eog, line1->data, line1->data_n, line1->size, vi->fb->buffer_c);
+ 
+     
+        char* inserts = to_insert[c];
+        for (int i = 0; i < (int) strlen(inserts); i++) 
+            insert_char(vi->fb, line1, inserts[i]);  
+
+        for (uint32_t i = 0; i < line1->size; i++) 
+            if (i >= line1->sog && i <= line1->eog) line1->data[i] = '_';
+
+        if (strcmp(line1->data, outputs[c]) == 0) printf("Test: %d: Success\n\r", c);
+        else {
+            printf("Test %d: %s != %s! Failed.\n\r", c, line1->data, outputs[c]);
+            printf("\nsog: %d, eog: %d, data: %s, data_n: %d, size: %d, buffer_c: %d\n\r", 
+                    line1->sog, line1->eog, line1->data, line1->data_n, line1->size, vi->fb->buffer_c);
+        }
+
+    }
+}
+
+void 
+test_gap_buffers() 
+{ 
+    printf("\n\rStarting test_gap_buffers()...\n");
+    test_move_gap();
+    test_insert();
+    printf("TESTS OK!");
+}

@@ -1,0 +1,204 @@
+#include <string.h>
+#include <stdio.h>
+#include "ring.h"
+
+extern struct ring_s* init_ring(uint32_t item_count, uint32_t item_size);
+
+uint8_t test_char_ring1() {
+    struct ring_s* ring = init_ring(5, 1); 
+    char c[10] = "abc";
+    char* result = ".abc.";
+    vimemset(ring->buffer, '.', 5);
+    ring->push(ring, (void*) c); 
+    ring->push(ring, (void*) c+1); 
+    ring->push(ring, (void*) c+2); 
+    
+    if (ring->head != 3) {
+        printf("Failed: ring->head != 3, head=%d", ring->head); 
+        return 0;
+    }
+    if (ring->tail != 0) {
+        printf("Failed: ring->tail != 0, tail=%d", ring->tail); return 0;
+    }
+
+    if (strcmp(ring->buffer, result) != 0) {
+        printf("Failed: incorrect ringbuffer: %s != %s\n\r", (char*) ring->buffer, c); 
+        return 0;
+    }
+    return 1;
+}
+
+uint8_t test_char_ring2() {
+    struct ring_s* ring = init_ring(5, 1); 
+    char c[10] = "abcdefg";
+    char* result = "efbcd";
+    vimemset(ring->buffer, '.', 5);
+    ring->push(ring, (void*) c); 
+    ring->push(ring, (void*) c+1); 
+    ring->push(ring, (void*) c+2); 
+    ring->push(ring, (void*) c+3); 
+    ring->push(ring, (void*) c+4); 
+    ring->push(ring, (void*) c+5); 
+
+    if (ring->head != 1) {
+        printf("Failed: ring->head != 1, head=%d", ring->head); 
+        return 0;
+    }
+    if (ring->tail != 2) {
+        printf("Failed: ring->tail != 2, tail=%d", ring->tail); return 0;
+    }
+    if (strcmp(ring->buffer, result) != 0) {
+        printf("Failed: incorrect ringbuffer: %s != %s\n\r", (char*) ring->buffer, result); 
+        return 0;
+    }
+    return 1;
+}
+
+uint8_t test_char_ring3() {
+    struct ring_s* ring = init_ring(5, 1); 
+    char c[] = "abcdefghijklmnopqrstuvwxyz";
+    char* result = "yzvwx";
+    vimemset(ring->buffer, '.', 5);
+    for (size_t i = 0; i < strlen(c); i++) ring->push(ring, (void*) c+i); 
+    if (ring->head != 1) {
+        printf("Failed: ring->head != 1, head=%d", ring->head); return 0;
+    }
+    if (ring->tail != 2) {
+        printf("Failed: ring->tail != 2, tail=%d", ring->tail); return 0;
+    }
+    if (strcmp(ring->buffer, result) != 0) {
+        printf("Failed: incorrect ringbuffer: %s != %s\n\r", (char*) ring->buffer, result); 
+        return 0;
+    }
+    return 1;
+}
+
+uint8_t test_char_ring4() {
+    struct ring_s* ring = init_ring(5, 1); 
+    char c[10] = "abcdefg";
+    char* result = "efbcd";
+    vimemset(ring->buffer, '.', 5);
+    ring->push(ring, (void*) c); 
+    ring->push(ring, (void*) c+1); 
+    ring->push(ring, (void*) c+2); 
+    ring->push(ring, (void*) c+3); 
+    ring->push(ring, (void*) c+4); 
+    ring->push(ring, (void*) c+5); 
+
+    printf("ring buffer: %s\n\r", (char*) ring->buffer);
+    printf("head: %d; tail: %d\n\r", ring->head, ring->tail);
+
+    int j = 1;
+    printf("\n\n\r");
+    for (size_t i = 0; i < strlen(result) - 1; i++) {
+        char* c = (char*) ring->pop(ring); 
+        if (c == NULL) {
+            printf("NULL dereference on pop\n\r"); 
+            return 0;
+        }
+        else { 
+            printf("popped %c\n\r", *c);
+        }
+        if (*c != result[j]) {
+            printf("Incorrect value popped. %c != %c.\n\r", *c, result[j]); 
+        }
+        j--;
+        if (j < 0) j = strlen(result) - 1; 
+    }
+
+    if (ring->head != 2) {
+        printf("Failed: ring->head != 2, head=%d\n\r", ring->head); 
+        return 0;
+    }
+    if (ring->tail != 2) {
+        printf("Failed: ring->tail != 2, tail=%d\n\r", ring->tail); return 0;
+    }
+
+    if (strcmp(ring->buffer, result) != 0) {
+        printf("Failed: incorrect ringbuffer: %s != %s\n\r", (char*) ring->buffer, result); 
+        return 0;
+    }
+    return 1;
+
+}
+
+struct nib {
+    uint32_t a; 
+    uint32_t b; 
+};
+
+uint8_t test_ring() {
+    uint8_t num_samples = 4;
+    struct ring_s* ring = init_ring(num_samples, sizeof(struct nib)); 
+    struct nib nibs[] = { 
+        {.a = 12, .b = 34}, 
+        {.a = 56, .b = 78}, 
+        {.a = 90, .b =100}, 
+        {.a =200, .b =300},
+        {.a =400, .b =500}
+    };
+    struct nib result[] = { 
+        {.a =200, .b = 300}, 
+        {.a =400, .b = 500}, 
+        {.a = 56, .b = 78}, 
+        {.a = 90, .b = 100},
+    };
+ 
+    for (uint8_t i = 0; i < num_samples + 1; i++) 
+        ring->push(ring, nibs + i); 
+
+    printf("Ring buffer:\n\r");
+    for (uint8_t i = 0; i < num_samples; i++) {
+        struct nib* p = ring->buffer + i * sizeof(struct nib); 
+        printf("{%d,%d}, ", p->a, p->b); 
+        if (p->a != result[i].a || p->b != result[i].b) {
+            printf("Wrong buffer!");
+            return 0;
+        }
+    }
+    printf("head: %d; tail: %d\n\r", ring->head, ring->tail);
+
+    int j = 1;
+    printf("\n\n\r");
+    for (uint8_t i = 0; i < num_samples -1 ; i++) {
+        struct nib* c = (struct nib*) ring->pop(ring); 
+        if (c == NULL) {
+            printf("NULL dereference on pop\n\r"); 
+            return 0;
+        }
+        else { 
+            printf("popped {%d,%d}\n\r", c->a, c->b);
+        }
+        if (c->a != result[j].a || c->b != result[j].b) {
+            printf("Incorrect value popped. \n\r"); 
+        }
+        j--;
+        if (j < 0) j = num_samples - 1; 
+    }
+
+    if (ring->head != 2) {
+        printf("Failed: ring->head != 2, head=%d\n\r", ring->head); 
+        return 0;
+    }
+    if (ring->tail != 2) {
+        printf("Failed: ring->tail != 2, tail=%d\n\r", ring->tail); return 0;
+    }
+
+    return 1;
+}
+
+
+
+void 
+test_ring_buffers() 
+{ 
+    printf("\n\rStarting test_ring_buffers()...\n");
+    if (test_char_ring1() && 
+        test_char_ring2() && 
+        test_char_ring3() && 
+        test_char_ring4() && 
+        test_ring())
+        printf("TESTS OK!\n\r");
+    else
+        printf("TESTS FAILED\n\r");
+}
