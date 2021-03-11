@@ -39,8 +39,7 @@ seek_line(struct fb_s* fb, uint32_t row)
 }
 
 void 
-merge_lines_up(struct fb_s* fb, struct vi_line* lower_line) 
-{
+merge_lines_up(struct fb_s* fb, struct vi_line* lower_line) {
     if (lower_line->data_n != 0) {
         // a newline was added in the middle of the line, so need to
         // revert the newline
@@ -143,6 +142,8 @@ insert_char(struct fb_s* fb, struct vi_line* line, char c)
     if (line->sog + 1 == line->eog) {
         // need to grow the gap because gapsize = 2 
         line->data = virealloc(line->data, line->size + INIT_GAP_SIZE - 1); 
+        // zero out new allocated characters (valgrind..)
+        vimemset(line->data + line->size, 0, INIT_GAP_SIZE - 1); 
         if (line->size - (line->eog + 1) != 0) {
             vimemmove(line->data + line->eog + INIT_GAP_SIZE, 
                     line->data + line->eog + 1, 
@@ -189,7 +190,7 @@ insert_line_after(struct fb_s* fb, struct vi_line* parent, struct vi_line* child
             virealloc(line->data, line->size); 
             vimemcpy(line->data + INIT_GAP_SIZE, 
                     fb->currentl->data + fb->currentl->eog + 1, 
-                    diff + 1);
+                    diff /*+ 1*/);
             line->sog = 0; 
             line->eog = INIT_GAP_SIZE - 1;
             line->data[line->size - 1] = '\0';
@@ -304,6 +305,7 @@ init_fb_struct(struct fb_s* fb)
     fb->buffer_n          = 1; 
     fb->buffer_c          = 0; 
     fb->buffer_r          = 0; 
+    fb->scroll_r          = 0; 
     fb->buffer_scroll     = 0; 
 }
 

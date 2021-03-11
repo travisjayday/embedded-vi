@@ -3,11 +3,20 @@
 void*
 next(struct ring_s* ring)
 {
-    return ring->buffer + ((ring->head + 1) % ring->item_count) * ring->item_size;
+    // get the pointer to the next item
+    uint32_t buffer_index = (ring->head + 1) % ring->item_count;
+    void* next_item = ring->buffer + buffer_index * ring->item_size;
+    
+    if (buffer_index == ring->tail) {
+        // the next item will overwrite the first item in the buffer, 
+        // so deallocate it first. 
+        if (ring->deallocator != NULL) ring->deallocator(next_item); 
+    }
+    return next_item; 
 }
 
 void
-push(struct ring_s* ring, void* item) 
+commit(struct ring_s* ring) 
 {
     ring->head++;                           // increment head
     ring->head %= ring->item_count;         // stay within bounds
@@ -16,11 +25,6 @@ push(struct ring_s* ring, void* item)
         ring->tail++;                       // moving tail one up
         ring->tail %= ring->item_count;     // stay within bounds
     }
-
-    (void) item;
-    // copy item into buffer 
-    /*vimemcpy(ring->buffer + ring->head * ring->item_size, 
-            item, ring->item_size); */
 }
 
 void* 
@@ -39,18 +43,32 @@ pop(struct ring_s* ring)
     return ret; 
 }
 
+void
+destroy(struct ring_s* ring) 
+{
+    void* item = ring->buffer; 
+    for (uint32_t i = 0; i < ring->item_count - 1; i++) {
+        item += ring->item_size;  
+        ring->deallocator(item); 
+    }
+    vifree(ring->buffer); 
+    vifree(ring);
+}
+
 struct ring_s* 
 init_ring(uint32_t item_count, uint32_t item_size) 
 {
     struct ring_s* ring = (struct ring_s*) vimalloc(sizeof(struct ring_s));
-    ring->buffer = vimalloc(item_count * item_size); 
+    ring->buffer = vicalloc(item_count, item_size); 
     ring->head = 0;
     ring->tail = 0; 
     ring->item_size = item_size;
     ring->item_count = item_count;
-    ring->push = &push;
+    ring->commit = &commit;
     ring->pop = &pop;
     ring->next = &next;
+    ring->deallocator = NULL;
+    ring->destroy = &destroy;
     return ring;
 }
 

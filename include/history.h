@@ -3,11 +3,36 @@
 
 #include "vi.h"
 
+/*
+ * Below are defines for commands that can be undone. 
+ */
+
 #define VICMD_INSERT_C      0
+/* Character inserted (not newline) 
+ * arg  = The character that was inserted.
+ * dptr = NULL
+ */
 #define VICMD_BACKSPACE_C   1
+/* Backspace pressed and character deleted (no line deleted).
+ * arg  = The character that was backspaced.
+ * dptr = NULL
+ */
 #define VICMD_ADDL          2
+/* 'o' pressed or '\n' inserted.
+ * arg  = 0
+ * dptr = struct vi_line* to the added line.
+ */
 #define VICMD_DD            3
+/* DD pressed.
+ * arg  = 0
+ * dptr = struct vi_line* to the deleted line.
+ */
 #define VICMD_DELL          4
+/* Backspace pressed at beginning of line (line deleted)
+ * arg = 0
+ * dptr = struct vi_line* to the deleted line.
+ */
+
 
 /* command struct */
 struct cmd_s {

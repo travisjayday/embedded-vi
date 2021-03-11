@@ -10,7 +10,7 @@ add_undoable_at_loc(uint8_t cmd, uint8_t arg, void* dptr, uint32_t row, uint32_t
     ptr->buffer_c = col;
     ptr->buffer_r = row;
     ptr->scroll_r = vi->fb->scroll_r;
-    vi->his->undo_ring->push(vi->his->undo_ring, ptr);
+    vi->his->undo_ring->commit(vi->his->undo_ring);
 }
 
 void 
@@ -34,6 +34,7 @@ undo(struct his_s* his, struct fb_s* fb)
             // restore cursor
             fb->buffer_r = cmd->buffer_r;
             fb->buffer_c = cmd->buffer_c + 1;
+            if (fb->currentl == NULL) break;
 
             fb->currentl = fb->seek_line(fb, fb->buffer_r);
             
@@ -41,7 +42,6 @@ undo(struct his_s* his, struct fb_s* fb)
             fb->scroll_r = cmd->scroll_r;
             fb->scroll = fb->seek_line(fb, cmd->scroll_r); 
 
-            if (fb->currentl == NULL) break;
             fb->move_gap_to_cursor(fb); 
             fb->backspace_char(fb, fb->currentl);
             return 0; 
@@ -49,23 +49,32 @@ undo(struct his_s* his, struct fb_s* fb)
             // restore cursor
             fb->buffer_r = cmd->buffer_r;
             fb->buffer_c = cmd->buffer_c;
-
             fb->currentl = fb->seek_line(fb, fb->buffer_r);
+            if (fb->currentl == NULL) break;
 
             // restore scroll
             fb->scroll_r = cmd->scroll_r;
             fb->scroll = fb->seek_line(fb, cmd->scroll_r);
 
-            if (fb->currentl == NULL) break;
             fb->move_gap_to_cursor(fb); 
             fb->insert_char(fb, fb->currentl, cmd->arg);
             return 0; 
         case VICMD_ADDL:
+            // restore cursor
+            fb->buffer_c = cmd->buffer_c;
+            fb->buffer_r = cmd->buffer_r;
+            l = fb->seek_line(fb, fb->buffer_r)->nextl;
+            fb->currentl = l;
+            if (fb->currentl == NULL) break;
+
             // restore scroll
             fb->scroll_r = cmd->scroll_r;
             fb->scroll = fb->seek_line(fb, cmd->scroll_r); 
 
             fb->merge_lines_up(fb, (struct vi_line*) cmd->dptr);
+
+            // move cursor back 
+            fb->currentl = l;
             fb->buffer_c = cmd->buffer_c;
             fb->buffer_r = cmd->buffer_r;
             fb->move_gap_to_cursor(fb);
@@ -75,6 +84,7 @@ undo(struct his_s* his, struct fb_s* fb)
             fb->buffer_c = cmd->buffer_c;
             fb->buffer_r = cmd->buffer_r;
             fb->currentl = fb->seek_line(fb, fb->buffer_r);
+            if (fb->currentl == NULL) break;
 
             // restore scroll
             fb->scroll_r = cmd->scroll_r;
@@ -85,18 +95,16 @@ undo(struct his_s* his, struct fb_s* fb)
             fb->move_gap_to_cursor(fb);
             return 0;
         case VICMD_DD:
+            // restore cursor
             fb->buffer_r = cmd->buffer_r;
             fb->buffer_c = cmd->buffer_c;
-
-            // seek the line above the line on which DD was executed
             fb->currentl = fb->seek_line(fb, fb->buffer_r); 
+            if (fb->currentl == NULL) break;
 
             // restore scroll
             fb->scroll_r = cmd->scroll_r;
             fb->scroll = fb->seek_line(fb, cmd->scroll_r); 
  
-            if (fb->currentl == NULL) break;
-
             // the line that was cut
             l = (struct vi_line*) cmd->dptr;
 
@@ -152,10 +160,39 @@ undo(struct his_s* his, struct fb_s* fb)
     return 0;
 }
 
+void
+deallocate_cmd(void* cmd_ptr) 
+{
+    struct cmd_s* cmd = (struct cmd_s*) cmd_ptr;
+    if (cmd == NULL) return; 
+    struct vi_line* line;
+    struct vi_line* start; 
+    switch (cmd->cmd) {
+        // comamnds that do not contain a DPTR
+        case VICMD_INSERT_C:
+        case VICMD_BACKSPACE_C:
+            // no deallocation is needed as no pointers are held.
+            return;
+        // commands that contain a struct vi_line* DPTR
+        case VICMD_DELL:
+        case VICMD_DD:
+        case VICMD_ADDL:
+            line = (struct vi_line*) cmd->dptr; 
+            start = vi->fb->headl; 
+            while (start != NULL) {
+                if (start == line) return; // line is still in use...
+                start = start->nextl;
+            }
+            vifree(line->data); 
+            break;
+    }
+}
+
 void 
 init_history_struct(struct his_s* his)
 {
     his->undo_ring = init_ring(VI_HISTORY_SIZE, sizeof(struct cmd_s));
+    his->undo_ring->deallocator = &deallocate_cmd;
     his->add_undoable = &add_undoable;
     his->add_undoable_at_loc = &add_undoable_at_loc;
     his->undo = &undo;
@@ -164,5 +201,6 @@ init_history_struct(struct his_s* his)
 void 
 destroy_history_struct(struct his_s* his)
 {
-    (void) his;
+    his->undo_ring->destroy(his->undo_ring);
+    vifree(his);
 }

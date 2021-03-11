@@ -15,9 +15,15 @@ obj=$(c-obj)
 # set search path for %.c and %.s wildcards to the subdirs of sources
 vpath %.c $(dir $(c-src))
 
+run: main
+	./build/./vi.out
+
 main: clean $(obj) 
 	$(cc) -o $(target) $(cflags-obj) $(obj)
-	./build/./vi.out
+
+debug: main
+	cd ./build/ && valgrind -s --log-file=log --leak-check=full --track-origins=yes ./vi.out
+	cat ./build/log
 
 build/%.o : %.c
 	$(cc) $< $(cflags-obj) -c -o $@

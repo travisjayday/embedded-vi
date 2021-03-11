@@ -89,8 +89,6 @@ struct fb_s {
      */
     void (*merge_lines_up)(struct fb_s* fb, struct vi_line* lower_line);
    
-
-
     /* 
      * The main textbuffer. A pointer to a list of line
      * pointers. 

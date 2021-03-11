@@ -20,6 +20,10 @@ init_term_struct(struct term_s* term)
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     term->cols = (uint16_t)(w.ws_col);
     term->rows = (uint16_t)(w.ws_row); 
+    term->cursor_c = 0;
+    term->cursor_r = 0;
+    term->saved_cursor_c = 0;
+    term->saved_cursor_r = 0;
 }
 
 void
@@ -32,8 +36,8 @@ destroy_term_struct(struct term_s* term)
 void 
 do_escape_seq(char dir, uint16_t n) 
 {
-    char* buf = vimalloc(0xf);
-    sprintf(buf, "\x1b[%d%c", n, dir); 
+    char* buf = vicalloc(0xf, 1);
+    sprintf(buf, "\x1b[%d%c", n, (int) dir); 
     write(STDOUT_FILENO, buf, strlen(buf)); 
     vifree(buf); 
 }
@@ -71,8 +75,8 @@ move_cursor_right(struct term_s* term, uint16_t n)
 void
 move_cursor_to_pos(struct term_s* term, uint16_t r, uint16_t c)
 {
-    char* buf = vimalloc(0xf);
-    sprintf(buf, "\x1b[%d;%dH", r + 1, c + 1); 
+    char* buf = vicalloc(0xf, 1);
+    sprintf(buf, "\x1b[%d;%dH", (int) (r + 1), (int) (c + 1)); 
     write(STDOUT_FILENO, buf, strlen(buf)); 
     vifree(buf); 
     term->cursor_c = c;

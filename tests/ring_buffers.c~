@@ -9,9 +9,9 @@ uint8_t test_char_ring1() {
     char c[10] = "abc";
     char* result = ".abc.";
     vimemset(ring->buffer, '.', 5);
-    ring->push(ring, (void*) c); 
-    ring->push(ring, (void*) c+1); 
-    ring->push(ring, (void*) c+2); 
+    ring->commit(ring); 
+    ring->commit(ring); 
+    ring->commit(ring); 
     
     if (ring->head != 3) {
         printf("Failed: ring->head != 3, head=%d", ring->head); 
@@ -30,15 +30,15 @@ uint8_t test_char_ring1() {
 
 uint8_t test_char_ring2() {
     struct ring_s* ring = init_ring(5, 1); 
-    char c[10] = "abcdefg";
+    //char c[10] = "abcdefg";
     char* result = "efbcd";
     vimemset(ring->buffer, '.', 5);
-    ring->push(ring, (void*) c); 
-    ring->push(ring, (void*) c+1); 
-    ring->push(ring, (void*) c+2); 
-    ring->push(ring, (void*) c+3); 
-    ring->push(ring, (void*) c+4); 
-    ring->push(ring, (void*) c+5); 
+    ring->commit(ring);
+    ring->commit(ring); 
+    ring->commit(ring); 
+    ring->commit(ring); 
+    ring->commit(ring); 
+    ring->commit(ring); 
 
     if (ring->head != 1) {
         printf("Failed: ring->head != 1, head=%d", ring->head); 
@@ -59,7 +59,7 @@ uint8_t test_char_ring3() {
     char c[] = "abcdefghijklmnopqrstuvwxyz";
     char* result = "yzvwx";
     vimemset(ring->buffer, '.', 5);
-    for (size_t i = 0; i < strlen(c); i++) ring->push(ring, (void*) c+i); 
+    for (size_t i = 0; i < strlen(c); i++) ring->commit(ring); 
     if (ring->head != 1) {
         printf("Failed: ring->head != 1, head=%d", ring->head); return 0;
     }
@@ -75,15 +75,15 @@ uint8_t test_char_ring3() {
 
 uint8_t test_char_ring4() {
     struct ring_s* ring = init_ring(5, 1); 
-    char c[10] = "abcdefg";
+    //char c[10] = "abcdefg";
     char* result = "efbcd";
     vimemset(ring->buffer, '.', 5);
-    ring->push(ring, (void*) c); 
-    ring->push(ring, (void*) c+1); 
-    ring->push(ring, (void*) c+2); 
-    ring->push(ring, (void*) c+3); 
-    ring->push(ring, (void*) c+4); 
-    ring->push(ring, (void*) c+5); 
+    ring->commit(ring); 
+    ring->commit(ring); 
+    ring->commit(ring); 
+    ring->commit(ring); 
+    ring->commit(ring); 
+    ring->commit(ring); 
 
     printf("ring buffer: %s\n\r", (char*) ring->buffer);
     printf("head: %d; tail: %d\n\r", ring->head, ring->tail);
@@ -130,13 +130,13 @@ struct nib {
 uint8_t test_ring() {
     uint8_t num_samples = 4;
     struct ring_s* ring = init_ring(num_samples, sizeof(struct nib)); 
-    struct nib nibs[] = { 
+    /*struct nib nibs[] = { 
         {.a = 12, .b = 34}, 
         {.a = 56, .b = 78}, 
         {.a = 90, .b =100}, 
         {.a =200, .b =300},
         {.a =400, .b =500}
-    };
+    };*/
     struct nib result[] = { 
         {.a =200, .b = 300}, 
         {.a =400, .b = 500}, 
@@ -145,7 +145,7 @@ uint8_t test_ring() {
     };
  
     for (uint8_t i = 0; i < num_samples + 1; i++) 
-        ring->push(ring, nibs + i); 
+        ring->commit(ring); 
 
     printf("Ring buffer:\n\r");
     for (uint8_t i = 0; i < num_samples; i++) {

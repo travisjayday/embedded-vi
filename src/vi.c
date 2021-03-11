@@ -84,18 +84,16 @@ init_vi()
     vi->his         = (struct his_s*)   vimalloc(sizeof(struct his_s));
     vi->cmdbuf      = (char*)           vimalloc(VI_CMDBUF_SIZE * sizeof(char));
     vi->cmdbuf_i    = 0; 
-    vi->cmdbuf      = (char*)           vimalloc(VI_CMDBUF_SIZE * sizeof(char));
-    vi->cmdbuf_i    = 0; 
     vi->mode        = VI_MODE_COMMAND;
     vi->keep_status = 0;
 
     init_logging();                                     // open the logfile
+    init_fb_struct(vi->fb);                             // allocate fb and register funcs 
     init_term_struct(vi->term);                         // populate terminal variables
     init_input_struct(vi->input, &keypress_handler);    // register input callback
-    init_fb_struct(vi->fb);                             // allocate fb and register funcs 
     init_history_struct(vi->his);                       // allocate history rings
 
-    vi->statusbuf   = (char*)           vimalloc(vi->term->cols * sizeof(char));
+    vi->statusbuf   = (char*) vimalloc(vi->term->cols * sizeof(char));
     vimemset(vi->statusbuf, ' ', vi->term->cols);
 
 #ifdef TESTS_ENABLED
@@ -418,9 +416,11 @@ void
 exit_vi()
 {
     stop_logging();
+    destroy_history_struct(vi->his);
     destroy_input_struct(vi->input); 
     destroy_term_struct(vi->term); 
     destroy_fb_struct(vi->fb);
+    vifree(vi->statusbuf);
     vifree(vi->cmdbuf);
     vifree(vi); 
     exit_prog(0);
