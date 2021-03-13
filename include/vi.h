@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "hasht.h"
 #include "vilibc.h"
 #include "mem.h"
 #include "input.h"

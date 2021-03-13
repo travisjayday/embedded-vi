@@ -78,15 +78,56 @@ time and it takes a constant amount of memory (VI_HISTORY_SIZE * sizeof(cmd_s)).
 
 ## Wed, March 10th, 4:16PM [6]
 ----------------------------------- 
-I've started implementing delete mode, so now DD'ing lines is possible.
-Backspacing to remove lines in insert mode is also possible. By adding each of
-these features, I needed to re-construct the reverse operation in order to undo
-them properly. This proved more difficult than anticipated as there existed
-several edge cases (such as DD'ing the first or last line of a file, etc.). I
-also discovered some bugs that messed up maintaining the invariance of certain
+I've started  implementing  delete  mode,  so  now  DD'ing  lines  is  possible.
+Backspacing to remove lines in insert mode is also possible.  By adding each  of
+these features, I needed to re-construct the reverse operation in order to  undo
+them properly.  This proved more difficult than  anticipated  as  there  existed
+several edge cases (such as DD'ing the first or last line of a file,  etc.).   I
+also discovered some bugs that messed up maintaining the invariance  of  certain
 pointers such as head and tail pointers. The codebase is growing. At 1700 lines
 and 30 files, I feel myself losing control. 
-                   
+
+
+## Fri, March 12th, 12:06AM [7]
+----------------------------------- 
+Today I tried to clean up my memory management strategies, but I soon noticed  a
+considerable problem.  Undo history commands that store  vi_line  pointers  must
+live until they exit the history buffer, at which point they must  be  freed  if
+and only if they do not exist anywhere else.  This poses  a  major  problem,  to
+which I have no clear solution yet.  I know that to solve this problem,  I  will
+need to somehow keep track of which lines are still in use and which  lines  are
+safe to be deleted. 
+
+For this, I knew that I needed some sort of hashset  for  quick  lookups,  so  I
+spent the day researching and implementing hash functions and hashtables.  I  am
+now at a state where I am getting segmentation faults in unknown memory  because
+of this endeavor.  I continue fighting.  I may have lost the battle but tomorrow
+is surely another day. 
+
+
+## Sat, March 13th, 3:49PM [8]
+----------------------------------- 
+I've succesfully implemented the hash table now  and  I've  morphed  in  into  a
+dictionary style lookup-table too. The programmer may now specify if he wants to
+use the hash table as a dictionary or as a simple lookup table.  If  used  as  a
+dictionary, he may specify a key and a value to store.  The key gets hashed  and
+used as an index into the buckets buffer, where a structure of {key,  value}  is
+stored.  Open addressing is used to resolve  hash  collisions.   If  he  instead
+specifies to use the hashtable as a traditional table, only the key gets  stored
+with no value.  Upon creation, the  programmer  also  must  specify  an  initial
+capacity of the structure (which must be a power of 2). If the load factor (used
+buckets / total buckets) reaches 75% or higher, the buckets are resized to twice
+the size, and all items are re-hashed. This makes the datastructures dynamic and
+fast.  Because we're using hashing, lookups, value updates, and removals can run
+in amortized O(1) time. 
+
+Now for the sad part.  I have no use for these  structures  at  the  moment.   I
+realized that it would be far simpler to just store the amount of references  to
+an object INSIDE the object itself.   Thus,  every  vi_line  object  now  has  a
+reference counter which is  1  at  creation  and  is  incremented  each  time  a
+reference to it is stored.  vi_lines with  zero  references  may  be  freed  for
+memory. 
+
 
 # Figures 
 ----------------------------------- 

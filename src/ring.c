@@ -1,4 +1,5 @@
 #include "ring.h"
+#include "env.h"
 
 void*
 next(struct ring_s* ring)
@@ -33,8 +34,9 @@ pop(struct ring_s* ring)
     if (ring->head == ring->tail)           // cannot remove item because 
         return NULL;                        // there's nothing left to remove
 
-    void* ret = ring->buffer + ring->head * ring->item_size;  // pointer to objec to return 
-
+    // pointer to objec to return 
+    void* ret = ring->buffer + ring->head * ring->item_size;      
+    
     if (ring->head == 0)                    // wrap to back 
         ring->head = ring->item_count - 1;  // be careful with unsigned ints
     else 
@@ -43,13 +45,14 @@ pop(struct ring_s* ring)
     return ret; 
 }
 
+
 void
 destroy(struct ring_s* ring) 
 {
     void* item = ring->buffer; 
-    for (uint32_t i = 0; i < ring->item_count - 1; i++) {
-        item += ring->item_size;  
+    for (uint32_t i = 0; i < ring->item_count; i++) {
         ring->deallocator(item); 
+        item += ring->item_size;  
     }
     vifree(ring->buffer); 
     vifree(ring);

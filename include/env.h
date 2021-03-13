@@ -2,6 +2,7 @@
 #define DEBUG_H
 
 #include "vi.h"
+#include "stdio.h"
 
 #define printflog(fmt, ...)                         \
     char* buf = vimalloc(512);                       \

@@ -3,7 +3,8 @@
 
 #include "vi.h"
 
-#define INIT_GAP_SIZE 4
+#define INIT_GAP_SIZE    4
+#define LINES_IN_USE_CAPACITY 4
 
 #define NONE_DELETED     0  // no line in buffere was deleted
 #define DELETED_UPWARD   1  // line was deleted and cursor will go up
@@ -22,6 +23,9 @@ struct vi_line {
 
     struct vi_line* prevl;  // pointer to previous line in fb or NULL
     struct vi_line* nextl;  // pointer to next line in fb or NULL
+
+    uint32_t        refs;   // the amount of places the memory reference of 
+                            // this struct is held in memory
 };
 
 struct fb_s {
@@ -79,9 +83,16 @@ struct fb_s {
     uint8_t (*cutl)(struct fb_s*);
 
     /*
-     * Allocate an empty vi_line. 
+     * Allocate an empty vi_line.
+     * Adds it to the lines_in_use hashtable.
      */
-    struct vi_line* (*alloc_emptyl)();
+    struct vi_line* (*alloc_emptyl)(struct fb_s*);
+
+    /*
+     * Frees a line and its data. 
+     * Removes it from the lines_in_use hashtable. 
+     */ 
+    void (*freel)(struct fb_s*, struct vi_line*); 
 
     /* 
      * Given a lower line, combine it with the line before and delete it. 
@@ -110,10 +121,12 @@ struct fb_s {
     uint32_t         buffer_scroll; // scroll offset from vi_line zero 
     uint32_t         scroll_r; 
 
-    struct vi_line*  headl;     // pointer to first line in fb
-    struct vi_line*  scroll;    // pointer to the first line visible on screen 
-    struct vi_line*  currentl;  // pointer to currently editing line in fb
-    struct vi_line*  taill;     // pointer to last line in fb
+    struct vi_line*  headl;         // pointer to first line in fb
+    struct vi_line*  scroll;        // pointer to the 1st line visible in term 
+    struct vi_line*  currentl;      // pointer to currently editing line in fb
+    struct vi_line*  taill;         // pointer to last line in fb
+
+    struct hasht_s*  lines_in_use;  // hashtable of all lines held in RAM
 };
 
 // initialize a framebuffer struct with a single empty line 

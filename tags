@@ -1,0 +1,225 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+DEBUG_H	include/env.h	2;"	d
+DELETED_ITEM	src/hasht.c	4;"	d	file:
+DELETED_STAY	include/fb.h	11;"	d
+DELETED_UPWARD	include/fb.h	10;"	d
+EMPTY_ITEM	src/hasht.c	3;"	d	file:
+FB_H	include/fb.h	2;"	d
+FS_H	include/fs.h	2;"	d
+HASHT_H	include/hasht.h	2;"	d
+HISTORY_H	include/history.h	2;"	d
+INIT_GAP_SIZE	include/fb.h	6;"	d
+INPUT_H	include/input.h	2;"	d
+LINES_IN_USE_CAPACITY	include/fb.h	7;"	d
+MEM_H	include/mem.h	2;"	d
+NONE_DELETED	include/fb.h	9;"	d
+REDRAW_FULL	include/vi.h	31;"	d
+REDRAW_PARTIAL	include/vi.h	32;"	d
+RING_H	include/ring.h	2;"	d
+STDOUT_FILENO	src/native/linux/term.c	9;"	d	file:
+TERM_H	include/term.h	2;"	d
+TESTS_H	include/tests.h	2;"	d
+VICMD_ADDL	include/history.h	20;"	d
+VICMD_BACKSPACE_C	include/history.h	15;"	d
+VICMD_DD	include/history.h	25;"	d
+VICMD_DELL	include/history.h	30;"	d
+VICMD_INSERT_C	include/history.h	10;"	d
+VILIBC_H	include/vilibc.h	2;"	d
+VI_CMDBUF_SIZE	include/vi.h	29;"	d
+VI_H	include/vi.h	2;"	d
+VI_HISTORY_SIZE	include/vi.h	22;"	d
+VI_MODE_COMMAND	include/vi.h	25;"	d
+VI_MODE_DEL_CMD	include/vi.h	28;"	d
+VI_MODE_INSERT	include/vi.h	27;"	d
+VI_MODE_INSERT_COMMAND	include/vi.h	26;"	d
+VI_TABWIDTH	include/vi.h	23;"	d
+add_undoable	include/history.h	/^    void (*add_undoable)(uint8_t cmd, uint8_t arg, void* dptr); $/;"	m	struct:his_s
+add_undoable	src/history.c	/^add_undoable(uint8_t cmd, uint8_t arg, void* dptr) $/;"	f
+add_undoable_at_loc	include/history.h	/^    void (*add_undoable_at_loc)(uint8_t cmd, uint8_t arg, $/;"	m	struct:his_s
+add_undoable_at_loc	src/history.c	/^add_undoable_at_loc(uint8_t cmd, uint8_t arg, $/;"	f
+alloc_emptyl	include/fb.h	/^    struct vi_line* (*alloc_emptyl)(struct fb_s*);$/;"	m	struct:fb_s	typeref:struct:fb_s::alloc_emptyl
+alloc_emptyl	src/fb.c	/^alloc_emptyl(struct fb_s* fb) $/;"	f
+arg	include/history.h	/^    uint32_t arg;       \/\/ The argument to the command$/;"	m	struct:cmd_s
+backspace_char	include/fb.h	/^    char (*backspace_char)(struct fb_s* fb, struct vi_line* line); $/;"	m	struct:fb_s
+backspace_char	src/fb.c	/^backspace_char(struct fb_s* fb, struct vi_line* line)$/;"	f
+buckets	include/hasht.h	/^    uintptr_t* buckets;          \/\/ pointer to buckets memory$/;"	m	struct:hasht_s
+buckets_n	include/hasht.h	/^    uint32_t buckets_n;     \/\/ number of allocated buckets $/;"	m	struct:hasht_s
+buckets_used	include/hasht.h	/^    uint32_t buckets_used;  \/\/ number of buckets in use$/;"	m	struct:hasht_s
+buffer	include/ring.h	/^    void* buffer;           \/\/ pointer to the raw memory of the buffer$/;"	m	struct:ring_s
+buffer_c	include/fb.h	/^    uint32_t         buffer_c;      \/\/ current column we are in buffer$/;"	m	struct:fb_s
+buffer_c	include/history.h	/^    uint32_t buffer_c;  \/\/ saved buffer col$/;"	m	struct:cmd_s
+buffer_n	include/fb.h	/^    uint32_t         buffer_n;      \/\/ number of vi_line* objects in list $/;"	m	struct:fb_s
+buffer_r	include/fb.h	/^    uint32_t         buffer_r;      \/\/ current row we are in buffer$/;"	m	struct:fb_s
+buffer_r	include/history.h	/^    uint32_t buffer_r;  \/\/ saved buffer row$/;"	m	struct:cmd_s
+buffer_scroll	include/fb.h	/^    uint32_t         buffer_scroll; \/\/ scroll offset from vi_line zero $/;"	m	struct:fb_s
+build	makefile	/^build=build\/$/;"	m
+c-obj	makefile	/^c-obj=$(addprefix $(build), $(subst .c,.o, $(notdir $(c-src))))	 $/;"	m
+c-src	makefile	/^c-src=$(shell find . -name '*.c')$/;"	m
+cc	makefile	/^cc=gcc$/;"	m
+cflags-obj	makefile	/^cflags-obj=-Wall -Wextra -Werror -Iinclude -g$/;"	m
+clear_term	src/native/linux/term.c	/^clear_term(struct term_s* term)$/;"	f
+clear_term_line	src/native/linux/term.c	/^clear_term_line(struct term_s* term) $/;"	f
+cmd	include/history.h	/^    uint8_t  cmd;       \/\/ The commmand identifier VICMD_*$/;"	m	struct:cmd_s
+cmd_s	include/history.h	/^struct cmd_s {$/;"	s
+cmdbuf	include/vi.h	/^    char*           cmdbuf; $/;"	m	struct:vi_s
+cmdbuf_i	include/vi.h	/^    uint16_t        cmdbuf_i;$/;"	m	struct:vi_s
+cols	include/term.h	/^    uint16_t cols;          \/\/ cols of current terminal $/;"	m	struct:term_s
+commit	include/ring.h	/^    void (*commit)(struct ring_s*); $/;"	m	struct:ring_s
+commit	src/ring.c	/^commit(struct ring_s* ring) $/;"	f
+currentl	include/fb.h	/^    struct vi_line*  currentl;      \/\/ pointer to currently editing line in fb$/;"	m	struct:fb_s	typeref:struct:fb_s::vi_line
+cursor_c	include/term.h	/^    uint16_t cursor_c;      \/\/ cursor column of current tmerinal $/;"	m	struct:term_s
+cursor_down	include/fb.h	/^    void (*cursor_down)(struct fb_s*); $/;"	m	struct:fb_s
+cursor_down	src/fb.c	/^cursor_down(struct fb_s* fb)$/;"	f
+cursor_left	include/fb.h	/^    void (*cursor_left)(struct fb_s*); $/;"	m	struct:fb_s
+cursor_left	src/fb.c	/^cursor_left(struct fb_s* fb)$/;"	f
+cursor_r	include/term.h	/^    uint16_t cursor_r;      \/\/ cursor row of current terminal $/;"	m	struct:term_s
+cursor_right	include/fb.h	/^    void (*cursor_right)(struct fb_s*); $/;"	m	struct:fb_s
+cursor_right	src/fb.c	/^cursor_right(struct fb_s* fb)$/;"	f
+cursor_up	include/fb.h	/^    void (*cursor_up)(struct fb_s*); $/;"	m	struct:fb_s
+cursor_up	src/fb.c	/^cursor_up(struct fb_s* fb)$/;"	f
+cutl	include/fb.h	/^    uint8_t (*cutl)(struct fb_s*);$/;"	m	struct:fb_s
+cutl	src/fb.c	/^cutl(struct fb_s* fb)$/;"	f
+data	include/fb.h	/^    char*           data;   \/\/ the char array for this line (including gap $/;"	m	struct:vi_line
+data_n	include/fb.h	/^    uint32_t        data_n; \/\/ the number of used characters in this line$/;"	m	struct:vi_line
+deallocate_cmd	src/history.c	/^deallocate_cmd(void* cmd_ptr) $/;"	f
+deallocator	include/ring.h	/^    void (*deallocator)(void* item);$/;"	m	struct:ring_s
+destroy	include/ring.h	/^    void (*destroy)(struct ring_s*);$/;"	m	struct:ring_s
+destroy	src/ring.c	/^destroy(struct ring_s* ring) $/;"	f
+destroy_fb_struct	src/fb.c	/^destroy_fb_struct(struct fb_s* fb)$/;"	f
+destroy_hasht	src/hasht.c	/^destroy_hasht(struct hasht_s* hasht)$/;"	f
+destroy_history_struct	src/history.c	/^destroy_history_struct(struct his_s* his)$/;"	f
+destroy_input_struct	src/native/linux/input.c	/^destroy_input_struct(struct input_s* input) $/;"	f
+destroy_term_struct	src/native/linux/term.c	/^destroy_term_struct(struct term_s* term) $/;"	f
+do_escape_seq	src/native/linux/term.c	/^do_escape_seq(char dir, uint16_t n) $/;"	f
+do_tests	tests/tests.c	/^void do_tests() $/;"	f
+dptr	include/history.h	/^    uintptr_t dptr;$/;"	m	struct:cmd_s
+eog	include/fb.h	/^    uint32_t        eog;    \/\/ end of the gap  $/;"	m	struct:vi_line
+exists	include/hasht.h	/^    void* (*exists)(struct hasht_s*, void* item); $/;"	m	struct:hasht_s
+exists	src/hasht.c	/^exists(struct hasht_s* hasht, void* item)$/;"	f
+exit_prog	src/native/linux/env.c	/^exit_prog(char code)$/;"	f
+exit_to_command_mode	src/vi.c	30;"	d	file:
+exit_vi	src/vi.c	/^exit_vi()$/;"	f
+fatal	src/native/linux/env.c	/^fatal(char* message)$/;"	f
+fb	include/vi.h	/^    struct fb_s*    fb;$/;"	m	struct:vi_s	typeref:struct:vi_s::fb_s
+fb_s	include/fb.h	/^struct fb_s {$/;"	s
+fnv_hash_1a_32	src/hasht.c	/^fnv_hash_1a_32(void *key, uint32_t len) $/;"	f
+fnv_hash_1a_64	src/hasht.c	/^fnv_hash_1a_64(void *key, uint64_t len) $/;"	f
+free_line	src/fb.c	/^free_line(struct fb_s* fb, struct vi_line* line) $/;"	f
+freel	include/fb.h	/^    void (*freel)(struct fb_s*, struct vi_line*); $/;"	m	struct:fb_s
+get_index_from_item	src/hasht.c	/^get_index_from_item(struct hasht_s* hasht, void* item)$/;"	f
+hasht_s	include/hasht.h	/^struct hasht_s {$/;"	s
+head	include/ring.h	/^    uint32_t head;          \/\/ head of the stack (semi-equivalent to stack pointer)$/;"	m	struct:ring_s
+headl	include/fb.h	/^    struct vi_line*  headl;         \/\/ pointer to first line in fb$/;"	m	struct:fb_s	typeref:struct:fb_s::vi_line
+his	include/vi.h	/^    struct his_s*   his; $/;"	m	struct:vi_s	typeref:struct:vi_s::his_s
+his_s	include/history.h	/^struct his_s {$/;"	s
+init_fb_struct	src/fb.c	/^init_fb_struct(struct fb_s* fb) $/;"	f
+init_hasht	src/hasht.c	/^init_hasht(uint32_t capacity)$/;"	f
+init_history_struct	src/history.c	/^init_history_struct(struct his_s* his)$/;"	f
+init_input_struct	src/native/linux/input.c	/^init_input_struct(struct input_s* input, void (*keypress_h)(uint16_t keycode))$/;"	f
+init_logging	src/native/linux/env.c	/^init_logging()$/;"	f
+init_ring	src/ring.c	/^init_ring(uint32_t item_count, uint32_t item_size) $/;"	f
+init_term_struct	src/native/linux/term.c	/^init_term_struct(struct term_s* term) $/;"	f
+init_vi	src/vi.c	/^init_vi()$/;"	f
+input	include/vi.h	/^    struct input_s* input; $/;"	m	struct:vi_s	typeref:struct:vi_s::input_s
+input_s	include/input.h	/^struct input_s {$/;"	s
+insert_char	include/fb.h	/^    void (*insert_char)(struct fb_s* fb, struct vi_line* line, char c); $/;"	m	struct:fb_s
+insert_char	src/fb.c	/^insert_char(struct fb_s* fb, struct vi_line* line, char c)$/;"	f
+insert_line_after	include/fb.h	/^    void (*insert_line_after)(struct fb_s* fb, $/;"	m	struct:fb_s
+insert_line_after	src/fb.c	/^insert_line_after(struct fb_s* fb, struct vi_line* parent, struct vi_line* child)$/;"	f
+item_count	include/ring.h	/^    uint32_t item_count;    \/\/ number of items this buffer stores$/;"	m	struct:ring_s
+item_size	include/ring.h	/^    uint32_t item_size;     \/\/ size of an item in bytes$/;"	m	struct:ring_s
+kb	tests/insert_delete1.py	/^kb = Controller()$/;"	v
+keep_status	include/vi.h	/^    uint8_t         keep_status; $/;"	m	struct:vi_s
+keypress_command_handler	src/vi.c	/^keypress_command_handler(char c) $/;"	f
+keypress_delmode_handler	src/vi.c	/^keypress_delmode_handler(char c) $/;"	f
+keypress_h	include/input.h	/^    void (*keypress_h)(uint16_t keycode);       $/;"	m	struct:input_s
+keypress_handler	src/vi.c	/^keypress_handler(uint16_t key) $/;"	f
+keypress_insert_command	src/vi.c	/^keypress_insert_command(char c) $/;"	f
+keypress_insert_handler	src/vi.c	/^keypress_insert_handler(char c) $/;"	f
+lines	tests/insert_delete1.py	/^lines = [$/;"	v
+lines_in_use	include/fb.h	/^    struct hasht_s*  lines_in_use;  \/\/ hashtable of all lines held in RAM$/;"	m	struct:fb_s	typeref:struct:fb_s::hasht_s
+logfile	src/native/linux/env.c	/^static FILE* logfile; $/;"	v	file:
+main	src/vi.c	/^int main() { init_vi(); }$/;"	f
+merge_lines_up	include/fb.h	/^    void (*merge_lines_up)(struct fb_s* fb, struct vi_line* lower_line);$/;"	m	struct:fb_s
+merge_lines_up	src/fb.c	/^merge_lines_up(struct fb_s* fb, struct vi_line* lower_line) {$/;"	f
+mode	include/vi.h	/^    uint8_t         mode;$/;"	m	struct:vi_s
+move_cursor_down	src/native/linux/term.c	/^move_cursor_down(struct term_s* term, uint16_t n)$/;"	f
+move_cursor_left	src/native/linux/term.c	/^move_cursor_left(struct term_s* term, uint16_t n)$/;"	f
+move_cursor_right	src/native/linux/term.c	/^move_cursor_right(struct term_s* term, uint16_t n)$/;"	f
+move_cursor_to_pos	src/native/linux/term.c	/^move_cursor_to_pos(struct term_s* term, uint16_t r, uint16_t c)$/;"	f
+move_cursor_up	src/native/linux/term.c	/^move_cursor_up(struct term_s* term, uint16_t n)$/;"	f
+move_gap_to_cursor	include/fb.h	/^    void (*move_gap_to_cursor)(struct fb_s*); $/;"	m	struct:fb_s
+move_gap_to_cursor	src/fb.c	/^move_gap_to_cursor(struct fb_s* fb)$/;"	f
+move_to_cursor	src/native/linux/term.c	/^move_to_cursor(struct vi_s* vi) $/;"	f
+next	include/ring.h	/^    void* (*next)(struct ring_s* ring); $/;"	m	struct:ring_s
+next	src/ring.c	/^next(struct ring_s* ring)$/;"	f
+nextl	include/fb.h	/^    struct vi_line* nextl;  \/\/ pointer to next line in fb or NULL$/;"	m	struct:vi_line	typeref:struct:vi_line::vi_line
+obj	makefile	/^obj=$(c-obj)$/;"	m
+open_buffer	src/native/linux/fs.c	/^void open_buffer(char* filepath)$/;"	f
+orig_termios	src/native/linux/input.c	/^static struct termios orig_termios; $/;"	v	typeref:struct:termios	file:
+poll_char	src/native/linux/input.c	/^poll_char(struct input_s* input)$/;"	f
+pop	include/ring.h	/^    void* (*pop)(struct ring_s*); $/;"	m	struct:ring_s
+pop	src/ring.c	/^pop(struct ring_s* ring)$/;"	f
+prevl	include/fb.h	/^    struct vi_line* prevl;  \/\/ pointer to previous line in fb or NULL$/;"	m	struct:vi_line	typeref:struct:vi_line::vi_line
+printflog	include/env.h	7;"	d
+printlog	src/native/linux/env.c	/^printlog(char* message)$/;"	f
+put	include/hasht.h	/^    void (*put)(struct hasht_s*, void* item); $/;"	m	struct:hasht_s
+put	src/hasht.c	/^put(struct hasht_s* hasht, void* item)$/;"	f
+redraw_buffer	src/vi.c	/^redraw_buffer(uint8_t mode) $/;"	f
+redraw_line	src/vi.c	/^redraw_line() $/;"	f
+relmove_seq	src/native/linux/term.c	/^char relmove_seq[] = "\\x1b[nA"; $/;"	v
+remove	include/hasht.h	/^    uint8_t (*remove)(struct hasht_s*, void* item); $/;"	m	struct:hasht_s
+remove_hashed	src/hasht.c	/^remove_hashed(struct hasht_s* hasht, void* item)$/;"	f
+restore_cursor	src/vi.c	16;"	d	file:
+restore_cursor_local	src/vi.c	25;"	d	file:
+ring_s	include/ring.h	/^struct ring_s {$/;"	s
+rows	include/term.h	/^    uint16_t rows;          \/\/ rows of current terminal $/;"	m	struct:term_s
+save_cursor	src/vi.c	12;"	d	file:
+save_cursor_local	src/vi.c	21;"	d	file:
+saved_cursor_c	include/term.h	/^    uint16_t saved_cursor_c; $/;"	m	struct:term_s
+saved_cursor_r	include/term.h	/^    uint16_t saved_cursor_r;$/;"	m	struct:term_s
+scroll	include/fb.h	/^    struct vi_line*  scroll;        \/\/ pointer to the 1st line visible in term $/;"	m	struct:fb_s	typeref:struct:fb_s::vi_line
+scroll_r	include/fb.h	/^    uint32_t         scroll_r; $/;"	m	struct:fb_s
+scroll_r	include/history.h	/^    uint32_t scroll_r;  \/\/ saved scroll offset$/;"	m	struct:cmd_s
+seek_line	include/fb.h	/^    struct vi_line* (*seek_line)(struct fb_s*, uint32_t row);$/;"	m	struct:fb_s	typeref:struct:fb_s::seek_line
+seek_line	src/fb.c	/^seek_line(struct fb_s* fb, uint32_t row) $/;"	f
+size	include/fb.h	/^    uint32_t        size;   \/\/ the size allocated for data$/;"	m	struct:vi_line
+sog	include/fb.h	/^    uint32_t        sog;    \/\/ start of the gap  $/;"	m	struct:vi_line
+statusbuf	include/vi.h	/^    char*           statusbuf; $/;"	m	struct:vi_s
+stop_logging	src/native/linux/env.c	/^stop_logging()$/;"	f
+tail	include/ring.h	/^    uint32_t tail;          \/\/ tail of the stack (semi-equivalent to base pointer)$/;"	m	struct:ring_s
+taill	include/fb.h	/^    struct vi_line*  taill;         \/\/ pointer to last line in fb$/;"	m	struct:fb_s	typeref:struct:fb_s::vi_line
+tap	tests/insert_delete1.py	/^def tap(key):$/;"	f
+target	makefile	/^target=build\/vi.out$/;"	m
+term	include/vi.h	/^    struct term_s*  term; $/;"	m	struct:vi_s	typeref:struct:vi_s::term_s
+term_s	include/term.h	/^struct term_s {$/;"	s
+tty_raw	src/native/linux/input.c	/^tty_raw(void)$/;"	f
+tty_reset	src/native/linux/input.c	/^int tty_reset(void)$/;"	f
+ttyfd	src/native/linux/input.c	8;"	d	file:
+undo	include/history.h	/^    uint8_t (*undo)(struct his_s*, struct fb_s* fb);$/;"	m	struct:his_s
+undo	src/history.c	/^undo(struct his_s* his, struct fb_s* fb) $/;"	f
+undo_ring	include/history.h	/^    struct ring_s* undo_ring;$/;"	m	struct:his_s	typeref:struct:his_s::ring_s
+upsize_table	src/hasht.c	/^upsize_table(struct hasht_s* master_table)$/;"	f
+vi	src/vi.c	/^struct vi_s* vi;$/;"	v	typeref:struct:vi_s
+vi_line	include/fb.h	/^struct vi_line {$/;"	s
+vi_s	include/vi.h	/^struct vi_s {$/;"	s
+vicalloc	src/native/linux/mem.c	/^vicalloc(size_t nmemb, size_t size) $/;"	f
+vifree	src/native/linux/mem.c	/^void vifree(void *ptr) $/;"	f
+vimalloc	src/native/linux/mem.c	/^vimalloc(size_t size)$/;"	f
+vimemcpy	src/native/linux/mem.c	/^vimemcpy(void* dest, const void* src, size_t n) $/;"	f
+vimemmove	src/native/linux/mem.c	/^vimemmove(void* dest, const void* src, size_t n) $/;"	f
+vimemset	src/native/linux/mem.c	/^vimemset(void* str, int c, size_t n) $/;"	f
+virealloc	src/native/linux/mem.c	/^virealloc(void* ptr, size_t size) $/;"	f
+visprintf	src/native/linux/vilib.c	/^visprintf(char *str, const char *format, ...) $/;"	f
+vistrcpy	src/native/linux/vilib.c	/^vistrcpy(char* dest, const char* src) $/;"	f
+vistrlen	src/native/linux/vilib.c	/^vistrlen(const char *str)$/;"	f
+write_buffer	src/native/linux/fs.c	/^void write_buffer(char* filepath) $/;"	f
+write_char	src/native/linux/term.c	/^write_char(char c) $/;"	f
+write_end_status	src/vi.c	/^write_end_status(char* status) $/;"	f
+write_status	src/vi.c	/^write_status() $/;"	f
+write_string	src/native/linux/term.c	/^write_string(char* str) $/;"	f

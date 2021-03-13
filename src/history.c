@@ -1,9 +1,11 @@
 #include "history.h"
+#include "env.h"
 
 void 
-add_undoable_at_loc(uint8_t cmd, uint8_t arg, void* dptr, uint32_t row, uint32_t col) 
+add_undoable_at_loc(uint8_t cmd, uint8_t arg, 
+        void* dptr, uint32_t row, uint32_t col) 
 {
-    struct cmd_s* ptr = (struct cmd_s*) vi->his->undo_ring->next(vi->his->undo_ring);
+    struct cmd_s* ptr = vi->his->undo_ring->next(vi->his->undo_ring);
     ptr->cmd = cmd;
     ptr->arg = arg;
     ptr->dptr = (uintptr_t) dptr;
@@ -11,6 +13,25 @@ add_undoable_at_loc(uint8_t cmd, uint8_t arg, void* dptr, uint32_t row, uint32_t
     ptr->buffer_r = row;
     ptr->scroll_r = vi->fb->scroll_r;
     vi->his->undo_ring->commit(vi->his->undo_ring);
+    if (dptr != NULL) {
+        printflog("\n\rAdeed line ewith conetnet %s\n", 
+                ((struct vi_line*) dptr)->data);
+    }
+    switch (cmd) {
+        // comamnds that do not contain a DPTR
+        case VICMD_INSERT_C:
+        case VICMD_BACKSPACE_C:
+            return;
+        // commands that contain a struct vi_line* DPTR
+        case VICMD_DELL:
+        case VICMD_DD:
+        case VICMD_ADDL:
+            // incrememnt the amount of refs to this line, as we've
+            // stored it into the undo ring
+            ((struct vi_line*) dptr)->refs++; 
+            break;
+    }
+
 }
 
 void 
@@ -65,7 +86,8 @@ undo(struct his_s* his, struct fb_s* fb)
             fb->buffer_r = cmd->buffer_r;
             l = fb->seek_line(fb, fb->buffer_r)->nextl;
             fb->currentl = l;
-            if (fb->currentl == NULL) break;
+            if (fb->currentl == NULL)
+                exit_vi();
 
             // restore scroll
             fb->scroll_r = cmd->scroll_r;
@@ -74,7 +96,6 @@ undo(struct his_s* his, struct fb_s* fb)
             fb->merge_lines_up(fb, (struct vi_line*) cmd->dptr);
 
             // move cursor back 
-            fb->currentl = l;
             fb->buffer_c = cmd->buffer_c;
             fb->buffer_r = cmd->buffer_r;
             fb->move_gap_to_cursor(fb);
@@ -84,13 +105,17 @@ undo(struct his_s* his, struct fb_s* fb)
             fb->buffer_c = cmd->buffer_c;
             fb->buffer_r = cmd->buffer_r;
             fb->currentl = fb->seek_line(fb, fb->buffer_r);
-            if (fb->currentl == NULL) break;
+            if (fb->currentl == NULL) {
+                exit_vi();
+            }
 
             // restore scroll
             fb->scroll_r = cmd->scroll_r;
             fb->scroll = fb->seek_line(fb, cmd->scroll_r); 
 
-            if (fb->currentl == NULL) break;
+            if (fb->currentl == NULL) {
+                exit_vi();
+            }
             vi->fb->insert_line_after(vi->fb, (struct vi_line*) cmd->dptr, NULL);
             fb->move_gap_to_cursor(fb);
             return 0;
@@ -160,30 +185,37 @@ undo(struct his_s* his, struct fb_s* fb)
     return 0;
 }
 
+#include "env.h"
+
 void
 deallocate_cmd(void* cmd_ptr) 
 {
     struct cmd_s* cmd = (struct cmd_s*) cmd_ptr;
+    printlog("Freeing line\n\r");
     if (cmd == NULL) return; 
     struct vi_line* line;
-    struct vi_line* start; 
     switch (cmd->cmd) {
         // comamnds that do not contain a DPTR
         case VICMD_INSERT_C:
         case VICMD_BACKSPACE_C:
             // no deallocation is needed as no pointers are held.
+            printlog((char*) &cmd->arg);
             return;
         // commands that contain a struct vi_line* DPTR
         case VICMD_DELL:
         case VICMD_DD:
         case VICMD_ADDL:
             line = (struct vi_line*) cmd->dptr; 
-            start = vi->fb->headl; 
-            while (start != NULL) {
-                if (start == line) return; // line is still in use...
-                start = start->nextl;
+            if (line->refs == 1) {
+                // this means that the only reference to this line is
+                // in this very undo comamnd. Hence, it is safe to free it.
+                vi->fb->freel(vi->fb, line); 
             }
-            vifree(line->data); 
+            else {
+                // this undo command is destroyed so it doesn't hold a ref
+                // to the line anymore.
+                line->refs--;
+            }
             break;
     }
 }

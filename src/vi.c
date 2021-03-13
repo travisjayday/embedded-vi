@@ -82,7 +82,7 @@ init_vi()
     vi->input       = (struct input_s*) vimalloc(sizeof(struct input_s));
     vi->fb          = (struct fb_s*)    vimalloc(sizeof(struct fb_s));
     vi->his         = (struct his_s*)   vimalloc(sizeof(struct his_s));
-    vi->cmdbuf      = (char*)           vimalloc(VI_CMDBUF_SIZE * sizeof(char));
+    vi->cmdbuf      = (char*)           vicalloc(1, VI_CMDBUF_SIZE * sizeof(char));
     vi->cmdbuf_i    = 0; 
     vi->mode        = VI_MODE_COMMAND;
     vi->keep_status = 0;
@@ -161,7 +161,8 @@ keypress_command_handler(char c)
             break;
         case 'o': 
             // insert a new line after current line in buffer
-            vi->fb->insert_line_after(vi->fb, vi->fb->currentl, vi->fb->alloc_emptyl());
+            vi->fb->insert_line_after(vi->fb, vi->fb->currentl, 
+                    vi->fb->alloc_emptyl(vi->fb));
             
             // if we reached end of buffer, scroll one row down
             if (vi->term->cursor_r + 1 > vi->term->rows - 2) {
@@ -415,13 +416,13 @@ keypress_handler(uint16_t key)
 void
 exit_vi()
 {
+    destroy_history_struct(vi->his);     
     stop_logging();
-    destroy_history_struct(vi->his);
     destroy_input_struct(vi->input); 
     destroy_term_struct(vi->term); 
     destroy_fb_struct(vi->fb);
-    vifree(vi->statusbuf);
     vifree(vi->cmdbuf);
+    vifree(vi->statusbuf);
     vifree(vi); 
     exit_prog(0);
 }

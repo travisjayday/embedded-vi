@@ -1,0 +1,141 @@
+#include <string.h>
+#include <stdio.h>
+#include "hasht.h"
+
+uint8_t
+test1(int cap)
+{
+    char items[5] = {1, 2, 3, 4, 5};
+    printf("Starting test 1...\n");
+    struct hasht_s* hasht = init_hasht(cap, HASH_ENTRY_TABL); 
+    hasht->put(hasht, items + 0, NULL); 
+    hasht->put(hasht, items + 0, NULL); 
+
+    void* ret = hasht->get(hasht, items + 0);
+    printf("Buffer starts at %p", hasht->buckets);
+    printf("\n\rExistence returend: %p\n", ret);
+
+    for (int i = 1; i < 5; i++) 
+        hasht->put(hasht, items + i, NULL); 
+
+    ret = hasht->get(hasht, items + 0);
+    printf("\nExistence returend: %p\n", ret);
+
+    struct hash_entry_table* buf = hasht->buckets; 
+    for (uint32_t i = 0; i < hasht->buckets; i++) {
+        printf("Item stored is: %lx", buf[i].key); 
+    }
+
+    for (int i = 1; i < 5; i++) {
+        uintptr_t* ret = hasht->get(hasht, items + i);
+        if (ret == NULL) {
+            printf("Encountered NULL got!!"); 
+            return 0;
+        }
+        uintptr_t item_ptr = *ret;
+        if (item_ptr != (uintptr_t) items + i) {
+            printf("Failed existence check! exist returned "
+                    "Returnned %p != %p\n", (void*) item_ptr, items + i); 
+            return 0; 
+        }
+    }
+    for (int i = 0; i < 5; i++) 
+        hasht->remove(hasht, items + i); 
+
+    /*for (uint32_t i = 0; i < hasht->buckets_n; i++) {
+        uintptr_t entry = *(hasht->buckets + i);
+        if (entry != 0 && entry != 0x1) {
+            printf("Found non-deleted entry!!!");
+            return 0; 
+        }
+    }*/
+    return 1;
+}
+
+uint8_t
+test2(int cap)
+{
+    char items[5] = {1, 2, 3, 4, 5};
+    printf("Starting test 1...\n");
+    struct hasht_s* hasht = init_hasht(cap, HASH_ENTRY_TABL); 
+    printf("Buffer starts at %p", hasht->buckets);
+    hasht->put(hasht, items + 0, NULL); 
+    hasht->put(hasht, items + 1, NULL); 
+    hasht->put(hasht, items + 2, NULL); 
+    hasht->put(hasht, items + 3, NULL); 
+
+    void* ret = hasht->get(hasht, items + 0);
+    printf("Buffer starts at %p", hasht->buckets);
+    printf("\n\rExistence returend: %p\n", ret);
+
+    ret = hasht->get(hasht, items + 1);
+    printf("\nExistence returend: %p\n", ret);
+
+    for (int i = 1; i < 5; i++) {
+        uintptr_t* ret = hasht->get(hasht, items + i);
+        if (ret != NULL) {
+            printf("Item not exist"); 
+            return 0;
+        }
+        uintptr_t item_ptr = *ret;
+        if (item_ptr != (uintptr_t) items + i) {
+            printf("Failed existence check! exist returned "
+                    "Returnned %p != %p\n", (void*) item_ptr, items + i); 
+            return 0; 
+        }
+    }
+    for (int i = 0; i < 5; i++) 
+        hasht->remove(hasht, items + i); 
+
+    /*for (uint32_t i = 0; i < hasht->buckets_n; i++) {
+        uintptr_t entry = *(hasht->buckets + i);
+        if (entry != 0 && entry != 0x1) {
+            printf("Found non-deleted entry!!!");
+            return 0; 
+        }
+    }*/
+    return 1;
+}
+
+void 
+test_dict1(int cap)
+{
+    struct hasht_s* dic = init_hasht(cap, HASH_ENTRY_DICT);
+    uintptr_t keys[] = {0xdeadbeef, 0xb00bbabe, 0xf00dbabe}; 
+    uintptr_t values[] = {1, 2, 3};
+    int len = 3;
+    for (int i = 0; i < len; i++) 
+        dic->put(dic, (void*) keys[i], (void*) values[i]); 
+    for (int i = 0; i < len; i++) {
+        uintptr_t got = (uintptr_t) dic->get(dic, (void*) keys[i]);
+        if (got != values[i]) {
+            printf("Invalid get returned. %p != %p", 
+                    (void*) got, (void*) values[i]);
+        } 
+    }
+    for (int i = 0; i < len; i++) 
+        dic->remove(dic, (void*) keys[i]); 
+
+    for (int i = 0; i < len; i++) {
+        uintptr_t got = (uintptr_t) dic->get(dic, (void*) keys[i]);
+        if (got != 0x00) {
+            printf("Invalid returned. Got %p instead of NULL for key %p", 
+                    (void*) got, (void*) keys[i]);
+        } 
+    }
+ 
+}
+
+
+void 
+test_hash_tables() 
+{ 
+    printf("\n\rStarting test_hash_tabbles()...\n");
+
+    if (test1(4)){// && test1(8)){// && test1(8)) {
+        printf("\n\n\rTESTS GOOD!");
+    }
+    else {
+        printf("\n\n\rTESTS FAILED!");
+    }
+}

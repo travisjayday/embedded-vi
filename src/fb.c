@@ -1,15 +1,26 @@
 #include "fb.h"
 
 void 
-free_line(struct vi_line* line) 
+free_line(struct fb_s* fb, struct vi_line* line) 
 {
-    vifree(line->data);
-    vifree(line);
+    (void) fb;
+    // remove line from lines_in_use hashtable
+    //if (fb->lines_in_use->remove(fb->lines_in_use, (void*) line)) {
+        // remove returned a positive number --> line was still 
+        // in use (it was still in the hastable), so free it
+        if (line->data != NULL) {
+            vifree(line->data);
+            line->data = NULL;
+        }
+        vifree(line);
+    //}
 }
 
 struct vi_line* 
-alloc_emptyl() 
+alloc_emptyl(struct fb_s* fb) 
 {
+    (void) fb;
+
     // allocate an initial line of size 0 
     struct vi_line* line = vimalloc(1 * sizeof(struct vi_line));
 
@@ -23,6 +34,10 @@ alloc_emptyl()
     line->data_n = 0;
     line->prevl = NULL;
     line->nextl = NULL; 
+
+    // keep track of the line until it dies 
+    // fb->lines_in_use->put(fb->lines_in_use, (void*) line, NULL); 
+    line->refs = 1; 
 
     return line;
 }
@@ -182,15 +197,15 @@ insert_line_after(struct fb_s* fb, struct vi_line* parent, struct vi_line* child
 {
     struct vi_line* line = child;
     if (line == NULL) {
-        line = alloc_emptyl();
+        line = alloc_emptyl(fb);
         uint32_t diff = fb->currentl->data_n - fb->buffer_c;
         if (diff > 0) {
             // newline pressed somewhere in middle of current line
             line->size = diff + INIT_GAP_SIZE + 1;
-            virealloc(line->data, line->size); 
+            line->data = virealloc(line->data, line->size + 1); 
             vimemcpy(line->data + INIT_GAP_SIZE, 
                     fb->currentl->data + fb->currentl->eog + 1, 
-                    diff /*+ 1*/);
+                    diff + 1);
             line->sog = 0; 
             line->eog = INIT_GAP_SIZE - 1;
             line->data[line->size - 1] = '\0';
@@ -274,6 +289,13 @@ cutl(struct fb_s* fb)
         cursor_up(fb);
     }
 
+    // clap buffer_c to next line width; 
+    if (fb->buffer_c >= fb->currentl->data_n) 
+        fb->buffer_c = fb->currentl->data_n;
+
+    // Line is no longer held in framebuffer, so dec its refs
+    line->refs--;
+
     return ret;
 }
 
@@ -292,10 +314,14 @@ init_fb_struct(struct fb_s* fb)
     fb->seek_line         = &seek_line;
     fb->cutl              = &cutl;
     fb->alloc_emptyl      = &alloc_emptyl;
+    fb->freel             = &free_line;
     fb->merge_lines_up    = &merge_lines_up;
 
-    // allocate empty vi_line
-    struct vi_line* first_line = alloc_emptyl(); 
+    // create lines in use hashtable
+    fb->lines_in_use = init_hasht(LINES_IN_USE_CAPACITY, HASH_ENTRY_TABL); 
+
+    // allocate empty vi_line (alloc_emptyl inserts it into hashtable) 
+    struct vi_line* first_line = alloc_emptyl(fb); 
 
     // init remaining fb 
     fb->headl             = first_line;
@@ -315,10 +341,10 @@ destroy_fb_struct(struct fb_s* fb)
     struct vi_line* line = fb->headl;
     while (line != NULL) {
         struct vi_line* nextl = line->nextl; 
-        vifree(line->data);
-        vifree(line);
+        free_line(fb, line);
         line = nextl;
     }
+    destroy_hasht(fb->lines_in_use);
     vifree(fb);
 }
 
